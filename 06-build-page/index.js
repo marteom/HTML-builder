@@ -28,20 +28,33 @@ const createMergedStyles = async (distDir) => {
     const stylesDir = path.join(__dirname, 'styles');
     const objData = await readdir(stylesDir, {withFileTypes: true});
 
-        for (const obj of objData) {                
-            if(obj.isFile() && path.extname(path.join(stylesDir, obj.name)).substring(1).toLowerCase() === 'css') {
-                const data = await fsPromises.readFile(path.join(stylesDir, obj.name), { encoding: 'utf8' });       
-                filesArray.push(data.toString());
-            }
+    for (const obj of objData) {                
+        if(obj.isFile() && path.extname(path.join(stylesDir, obj.name)).substring(1).toLowerCase() === 'css') {
+            const data = await fsPromises.readFile(path.join(stylesDir, obj.name), { encoding: 'utf8' });       
+            filesArray.push(data.toString());
         }
+    }
 
-        await fsPromises.writeFile(path.join(distDir, 'style.css'), filesArray.join("\n \n"));
+    await fsPromises.writeFile(path.join(distDir, 'style.css'), filesArray.join("\n \n"));
+}
 
+const copyAssets = async (sourceDir, distDir) => {
+    const objData = await readdir(sourceDir, { withFileTypes: true });
+    for (const obj of objData) {
+        if (obj.isFile()) {
+            await copyFile(path.join(sourceDir, obj.name), path.join(distDir, obj.name));
+        }
+        else if (obj.isDirectory()) {
+            await mkdir(path.join(distDir, obj.name), { recursive: true });
+            await copyAssets(path.join(sourceDir, obj.name), path.join(distDir, obj.name));
+        }
+    }
 }
 
 const exec = async () => {
     const distDir = await createDistDir();
     await createFilledTemplate(distDir);
     await createMergedStyles(distDir);
+    await copyAssets(path.join(__dirname, 'assets'), path.join(distDir, 'assets'));
 };
 exec();
