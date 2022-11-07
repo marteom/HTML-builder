@@ -1,6 +1,7 @@
 const path = require('node:path');
 const { readdir } = require('node:fs/promises');
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 
 const stylesDir = path.join(__dirname, 'styles');
 const bundleDir = path.join(__dirname, 'project-dist');
@@ -8,10 +9,10 @@ const bundleDir = path.join(__dirname, 'project-dist');
 let filesArray = [];
 
 const folderObjs = readdir(stylesDir, {withFileTypes: true});
-folderObjs.then((objData) => {
+folderObjs.then(async (objData) => {
     for (const obj of objData) {                
         if(obj.isFile() && path.extname(path.join(stylesDir, obj.name)).substring(1).toLowerCase() === 'css') {
-            const data = fs.readFileSync(path.join(stylesDir, obj.name));        
+            const data = await fsPromises.readFile(path.join(stylesDir, obj.name), { encoding: 'utf8' });       
             filesArray.push(data.toString());
         }
     }
