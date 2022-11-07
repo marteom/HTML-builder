@@ -1,5 +1,5 @@
 const path = require('node:path');
-const { mkdir, copyFile } = require('node:fs/promises');
+const { mkdir, copyFile, readdir } = require('node:fs/promises');
 
 const fsPromises = require('fs/promises');
 
@@ -22,8 +22,26 @@ const createDistDir = async () => {
     return distDirPath;
 }
 
+const createMergedStyles = async (distDir) => {
+    let filesArray = [];
+
+    const stylesDir = path.join(__dirname, 'styles');
+    const objData = await readdir(stylesDir, {withFileTypes: true});
+
+        for (const obj of objData) {                
+            if(obj.isFile() && path.extname(path.join(stylesDir, obj.name)).substring(1).toLowerCase() === 'css') {
+                const data = await fsPromises.readFile(path.join(stylesDir, obj.name), { encoding: 'utf8' });       
+                filesArray.push(data.toString());
+            }
+        }
+
+        await fsPromises.writeFile(path.join(distDir, 'style.css'), filesArray.join("\n \n"));
+
+}
+
 const exec = async () => {
     const distDir = await createDistDir();
     await createFilledTemplate(distDir);
+    await createMergedStyles(distDir);
 };
 exec();
