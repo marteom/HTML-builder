@@ -16,9 +16,12 @@ folderObjs.then((objData) => {
         }
     }
 
-    console.log('filesArray.length: ',filesArray.length);
-
-
     outputStream = fs.createWriteStream(path.join(bundleDir, 'bundle.css'), {flags: 'a'});
-    outputStream.write('');
+
+    for(const cssData of filesArray) {
+        outputStream.write('\n' + cssData);
+    }
+
+    outputStream.end();
+    
 });
