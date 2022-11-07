@@ -14,7 +14,9 @@ const createDistDir = async (distDir) => {
     const articlesComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'articles.html'), { encoding: 'utf8' }); 
     const footerComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'footer.html'), { encoding: 'utf8' }); 
 
-    //console.log(footerComponent.toString());
+    const filledTemplate = templateData.replace('{{header}}', headerComponent).replace('{{articles}}', articlesComponent).replace('{{footer}}', footerComponent);
+
+    await fsPromises.writeFile(path.join(distDir, 'index.html'), filledTemplate)
 
 }
 
