@@ -15,9 +15,9 @@ const showFilesInfo = (dirPath) => {
           console.log(result);
         });
       }
-      else if(obj.isDirectory()){
-        showFilesInfo(path.join(dirPath, obj.name));
-      }
+      // else if(obj.isDirectory()){
+      //   showFilesInfo(path.join(dirPath, obj.name));
+      // }
     }
   })
 }
