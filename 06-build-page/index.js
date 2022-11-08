@@ -3,17 +3,30 @@ const { mkdir, copyFile, readdir } = require('node:fs/promises');
 
 const fsPromises = require('fs/promises');
 
-const createFilledTemplate = async (distDir) => {
-    const templateData = await fsPromises.readFile(path.join(__dirname, 'template.html'), { encoding: 'utf8' });    
+const getComponentsData = async (componentsDir) => {
+
+    const componentsData = new Map();
+
+    const componentsDirData = await readdir(componentsDir, {withFileTypes: true});
+
+    for (const obj of componentsDirData) {                
+        if(obj.isFile() && path.extname(path.join(componentsDir, obj.name)).substring(1).toLowerCase() === 'html') {
+            const data = await fsPromises.readFile(path.join(componentsDir, obj.name), { encoding: 'utf8' });       
+            componentsData.set(obj.name.split('.')[0] ,data.toString());
+        }
+    }
     
-    const headerComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'header.html'), { encoding: 'utf8' }); 
-    const articlesComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'articles.html'), { encoding: 'utf8' }); 
-    const footerComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'footer.html'), { encoding: 'utf8' }); 
-    //const aboutComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'about.html'), { encoding: 'utf8' }); 
+    return componentsData;
+}
 
-    const filledTemplate = templateData.replace('{{header}}', headerComponent).replace('{{articles}}', articlesComponent).replace('{{footer}}', footerComponent); //.replace('{{about}}', aboutComponent);
+const createFilledTemplate = async (distDir, componentsMap) => {
+    let templateData = await fsPromises.readFile(path.join(__dirname, 'template.html'), { encoding: 'utf8' });    
 
-    await fsPromises.writeFile(path.join(distDir, 'index.html'), filledTemplate);
+    componentsMap.forEach((value, key) => {
+        templateData = templateData.replace(`{{${key}}}`, value);
+      })
+
+    await fsPromises.writeFile(path.join(distDir, 'index.html'), templateData);
 }
 
 const createDistDir = async () => {
@@ -54,7 +67,8 @@ const copyAssets = async (sourceDir, distDir) => {
 
 const exec = async () => {
     const distDir = await createDistDir();
-    await createFilledTemplate(distDir);
+    const components = await getComponentsData(path.join(__dirname, 'components'));
+    await createFilledTemplate(distDir, components);
     await createMergedStyles(distDir);
     await copyAssets(path.join(__dirname, 'assets'), path.join(distDir, 'assets'));
 };
