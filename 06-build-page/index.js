@@ -9,9 +9,9 @@ const createFilledTemplate = async (distDir) => {
     const headerComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'header.html'), { encoding: 'utf8' }); 
     const articlesComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'articles.html'), { encoding: 'utf8' }); 
     const footerComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'footer.html'), { encoding: 'utf8' }); 
-    const aboutComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'about.html'), { encoding: 'utf8' }); 
+    //const aboutComponent = await fsPromises.readFile(path.join(__dirname, 'components', 'about.html'), { encoding: 'utf8' }); 
 
-    const filledTemplate = templateData.replace('{{header}}', headerComponent).replace('{{articles}}', articlesComponent).replace('{{footer}}', footerComponent).replace('{{about}}', aboutComponent);
+    const filledTemplate = templateData.replace('{{header}}', headerComponent).replace('{{articles}}', articlesComponent).replace('{{footer}}', footerComponent); //.replace('{{about}}', aboutComponent);
 
     await fsPromises.writeFile(path.join(distDir, 'index.html'), filledTemplate);
 }
